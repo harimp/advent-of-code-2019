@@ -5,7 +5,7 @@ Day 3: Crossed Wires
 Gist:
 - Wires description is given in input file
 - Wires start from center (0,0)
-- Find Manhattan distance for closest intersection
+- Find the closest wire distance to an intersection
 
 """
 
@@ -50,14 +50,27 @@ def distance(point):
     """ find the manhattan distance """
     return abs(point[0]) + abs(point[1])
 
-def find_first_distance(wire_points, intersections):
-    """ find distance to first intersection """
-    i = 0
-    while i < len(wire_points):
-        if wire_points[i] in intersections:
-            return i + 1
-        i += 1
-    raise ValueError('no intersections')
+def find_intersection_distances(wire, intersections):
+    """ runs through wire and finds intersection distance """
+    distance_dict = {}
+    for point in intersections:
+        distance_dict[point] = 0
+
+    wire_distance = 0
+    for wire_point in wire:
+        if wire_point in distance_dict:
+            distance_dict[wire_point] = wire_distance
+        wire_distance += 1
+    return distance_dict
+
+def find_shortest_combined_wire_distance(wires, intersections):
+    """ finds shortest combined distance """
+    interdistance_one = find_intersection_distances(wires[0], intersections)
+    interdistance_two = find_intersection_distances(wires[1], intersections)
+    combined = {}
+    for point in intersections:
+        combined[point] = interdistance_one[point] + interdistance_two[point]
+    return sorted(combined.values())[0]
 
 def solve():
     """ Find solution """
@@ -66,8 +79,7 @@ def solve():
     point_sets = (get_wire_points(wires[0]), get_wire_points(wires[1]))
 
     intersections = set(point_sets[0]).intersection(point_sets[1])
-    distances = (find_first_distance(point_sets[0], intersections),
-                 find_first_distance(point_sets[1], intersections))
-    print(distances[0] + distances[1])
+    shortest = find_shortest_combined_wire_distance(point_sets, intersections)
+    print(shortest)
 
 solve()
