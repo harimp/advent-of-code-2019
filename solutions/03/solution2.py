@@ -9,6 +9,8 @@ Gist:
 
 """
 
+import math
+
 INPUT_FILE_NAME = 'input.txt'
 
 def get_wire_desc():
@@ -46,31 +48,27 @@ def get_wire_points(wire):
             points.append((current_x, current_y))
     return points
 
-def distance(point):
-    """ find the manhattan distance """
-    return abs(point[0]) + abs(point[1])
+def get_wire_distance(wire, target_point):
+    """ get distance through wire """
+    distance = 0
+    for point in wire:
+        distance += 1
+        if point == target_point:
+            return distance
+    return math.inf
 
-def find_intersection_distances(wire, intersections):
-    """ runs through wire and finds intersection distance """
-    distance_dict = {}
-    for point in intersections:
-        distance_dict[point] = 0
+def get_intersection_wire_distance(wire, intersections):
+    """ get wire distance for intersections """
+    return [get_wire_distance(wire, point) for point in intersections]
 
-    wire_distance = 0
-    for wire_point in wire:
-        if wire_point in distance_dict:
-            distance_dict[wire_point] = wire_distance
-        wire_distance += 1
-    return distance_dict
-
-def find_shortest_combined_wire_distance(wires, intersections):
-    """ finds shortest combined distance """
-    interdistance_one = find_intersection_distances(wires[0], intersections)
-    interdistance_two = find_intersection_distances(wires[1], intersections)
-    combined = {}
-    for point in intersections:
-        combined[point] = interdistance_one[point] + interdistance_two[point]
-    return sorted(combined.values())[0]
+def get_shortest_wire_distance(wires, intersections):
+    """ got tired of writing these """
+    wd_one = get_intersection_wire_distance(wires[0], intersections)
+    wd_two = get_intersection_wire_distance(wires[1], intersections)
+    wd_combined = []
+    for i in range(len(wd_one)):
+        wd_combined.append(wd_one[i] + wd_two[i])
+    return sorted(wd_combined)[0]
 
 def solve():
     """ Find solution """
@@ -78,8 +76,7 @@ def solve():
     wires = get_wire_desc()
     point_sets = (get_wire_points(wires[0]), get_wire_points(wires[1]))
 
-    intersections = set(point_sets[0]).intersection(point_sets[1])
-    shortest = find_shortest_combined_wire_distance(point_sets, intersections)
-    print(shortest)
+    intersections = set(point_sets[0]).intersection(set(point_sets[1]))
+    print(get_shortest_wire_distance(point_sets, intersections))
 
 solve()
